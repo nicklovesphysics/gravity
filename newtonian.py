@@ -16,9 +16,8 @@ class MassiveBody:
     
 class Particle(MassiveBody):
 
-    def __init__(self, mass, radius, direction, velocity, position):
+    def __init__(self, mass, radius, velocity, position):
         super().__init__(mass, radius, position)          #assigning tiny masses and radii to a photon to mimic massless tiny particle.
-        self.direction = direction
         self.velocity = velocity
         
 
@@ -64,11 +63,11 @@ class Gravity:                          #General gravity operations and related 
 #Parameters for numerical path integration
 #=========================================
 
-n_iterations = 20
-t_iter = 1/n_iterations
+n_iterations = 2000
+t_iter = 1
 
 
-photon = Particle(mass = 1e-50, radius = 1e-50, direction = (1,2), velocity = (1,2), position = (3,0))
+photon = Particle(mass = 1e-50, radius = 1e-50, velocity = (150,190), position = (300,400))
 center = CentralMass(mass = 10e10, radius = 10e4, position = (0,0))
 
 
@@ -84,7 +83,8 @@ v_init_y = photon.velocity[1]
 F_init = Gravity.Force(photon, center)
 F_init_d = Gravity.Direction(photon, center)
 
-vector_list = np.empty((n_iterations, 2))  #two dimensional array for 2d vector sums, not plotting with a for loop. 
+velocity_list = np.empty((n_iterations, 2))  #two dimensional array for 2d vector sums, not plotting with a for loop. 
+pos_list = np.empty((n_iterations,2))       #same for positions
 
 print("Beginning For Loop")
 
@@ -102,33 +102,45 @@ for i in range(n_iterations):
         v_iter_x = (F_mag*F_dir[0]*t_iter)/(photon.mass)          #Velocity (vector) gained from Gravitational Force
         v_iter_y = (F_mag*F_dir[1]*t_iter)/(photon.mass)
         
-        v_fx = v_0x + v_iter_x                  #to annotate
-        v_fy = v_0y + v_iter_y
 
         pos_iter_x = v_iter_x*t_iter
         pos_iter_y = v_iter_y*t_iter
 
+        v_fx = v_0x + v_iter_x
+        v_fy = v_0y + v_iter_y
+ 
 
-    photon.velocity == [v_fx, v_fy]
-    photon.pos == [pos_iter_x, pos_iter_y]
+    else:
+        v_0x = v_fx
+        v_0y = v_fy
 
-    F_mag = Gravity.Force(photon, center)
-    F_dir = Gravity.Direction(photon, center)
+        photon.velocity = [v_fx, v_fy]
+        photon.pos = [pos_iter_x, pos_iter_y]
+
+        
+
+        F_mag = Gravity.Force(photon, center)
+        F_dir = Gravity.Direction(photon, center)
 
 
-    v_iter_x = (F_mag*F_dir[0]*t_iter)/(photon.mass)          
-    v_iter_y = (F_mag*F_dir[1]*t_iter)/(photon.mass)
+        v_iter_x = (F_mag*F_dir[0]*t_iter)/(photon.mass)          
+        v_iter_y = (F_mag*F_dir[1]*t_iter)/(photon.mass)
 
-    pos_iter_x = v_iter_x*t_iter
-    pos_iter_y = v_iter_y*t_iter
+        pos_iter_x = v_iter_x*t_iter
+        pos_iter_y = v_iter_y*t_iter
 
-    v_fx = v_0x + v_iter_x
-    v_fy = v_0y + v_iter_y
+        v_fx = v_0x + v_iter_x
+        v_fy = v_0y + v_iter_y
 
-    vector_list[(i-1), :] = [v_fx, v_fy]
-    print(f"Array row {i} calculated")
 
-print(vector_list[2:5, :])
+    velocity_list[(i), :] = [v_fx, v_fy]
+    pos_list[(i), :] = [pos_iter_x, pos_iter_y]
+
+print(pos_list[900:950])
+    
+
+#oscillating values. fix tomorrow. 
+
 
    
     

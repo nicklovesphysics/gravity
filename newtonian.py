@@ -67,8 +67,8 @@ n_iterations = 2000
 t_iter = 1
 
 
-photon = Particle(mass = 1e-50, radius = 1e-50, velocity = (150,190), position = (300,400))
-center = CentralMass(mass = 10e10, radius = 10e4, position = (0,0))
+photon = Particle(mass = 1, radius = 1e-10, velocity = (-10,-10), position = (200,0))
+center = CentralMass(mass = 10e11, radius = 10, position = (0,0))
 
 
 
@@ -96,18 +96,20 @@ F_dir = F_init_d
 v_0x = v_init_x
 v_0y = v_init_y 
 
-v_iter_x = (F_mag*F_dir[0]*t_iter)/(photon.mass)          #Velocity (vector) gained from Gravitational Force
-v_iter_y = (F_mag*F_dir[1]*t_iter)/(photon.mass)
-
-
-pos_iter_x = v_iter_x*t_iter
-pos_iter_y = v_iter_y*t_iter
+v_iter_x = -(F_mag*F_dir[0]*t_iter)/(photon.mass)          #Velocity (vector) gained from Gravitational Force
+v_iter_y = -(F_mag*F_dir[1]*t_iter)/(photon.mass)
 
 v_fx = v_0x + v_iter_x
 v_fy = v_0y + v_iter_y
 
+pos_iter_x = v_iter_x*t_iter
+pos_iter_y = v_iter_y*t_iter
+
+pos_init_disp = pos_iter_x+photon.pos[0]
+pos_init_disp = pos_iter_y+photon.pos[1]
+
 velocity_list[0,:] = [v_fx, v_fy]
-pos_list[(0), :] = [pos_iter_x, pos_iter_y]
+pos_list[(0), :] = [pos_init_disp, pos_init_disp]
 #===================================================
 #Looping over iterations and adding results into list of all positional changes for plotting later. 
 #===================================================
@@ -128,25 +130,36 @@ for i in range(n_iterations):
     F_dir = Gravity.Direction(photon, center)
 
 
-    v_iter_x = (F_mag*F_dir[0]*t_iter)/(photon.mass)          
-    v_iter_y = (F_mag*F_dir[1]*t_iter)/(photon.mass)
-
-    pos_iter_x = v_iter_x*t_iter
-    pos_iter_y = v_iter_y*t_iter
+    v_iter_x = -(F_mag*F_dir[0]*t_iter)/(photon.mass)          
+    v_iter_y = -(F_mag*F_dir[1]*t_iter)/(photon.mass)
 
     v_fx = v_0x + v_iter_x
     v_fy = v_0y + v_iter_y
 
+    pos_iter_x = v_iter_x*t_iter
+    pos_iter_y = v_iter_y*t_iter
+
+    pos_fx = pos_iter_x + photon.pos[0]
+    pos_fy = pos_iter_y + photon.pos[1]
 
     velocity_list[(i+1), :] = [v_fx, v_fy]
-    pos_list[(i+1), :] = [pos_iter_x, pos_iter_y]
+    pos_list[(i+1), :] = [pos_fx, pos_fy]
 
 
-    
+print(pos_list)
+#===================================================
+#Plotting positions over time
+#===================================================
 
-#oscillating values. fix tomorrow. 
+xpos = pos_list[:,0]
+ypos = pos_list[:,1]
 
 
+# plt.plot(xpos,ypos, c = 'yellow')
+# plt.show()
+
+
+#git test
    
     
 

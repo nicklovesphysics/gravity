@@ -10,7 +10,7 @@ class MassiveBody:
 
     def __init__(self, mass, radius, position):
         self.mass = mass
-        self.radius = radius
+        self.radius = radius                    #initializing general attributes for interacting bodies in the simulation. 
         self.pos = position
     
    
@@ -18,7 +18,7 @@ class MassiveBody:
 class Particle(MassiveBody):
 
     def __init__(self, mass, radius, velocity, position):
-        super().__init__(mass, radius, position)          #assigning tiny masses and radii to a photon to mimic massless tiny particle.
+        super().__init__(mass, radius, position)          #assigning tiny masses and radii to a photon can mimic a real one: massless, radius-less particle.
         self.velocity = velocity
         
 
@@ -71,11 +71,17 @@ class Gravity:                          #General gravity operations and related 
 #Parameters for numerical path integration
 #=========================================
 
-n_iterations = 360
-t_iter = 1
+#**EVERY TIME UNIT IS IN seconds!** 
+
+n_iterations = 450         #number of iterations of for loop.
+t_iter = .1                  #time used for linear approximations of each iteration. Comparable to resolution. 
+
+#for a smooth simulation, t_iter*n_iterations should be comparable to orbital period.
+#a good rule of thumb is: if t_iter goes down an order of magnitude, n_iteratoins must go up by one.
+#Increase n_iterations after this if you do not see a complete trajectory.
 
 center = CentralMass(mass = 10e19, radius = 1000, position = (0,0))
-photon = Particle(mass = 1, radius = 1, velocity = (0, 490), position = (12000,0))
+photon = Particle(mass = 1, radius = 1, velocity = (0, 325), position = (12000,0))      #name is photon, but orbital object could be anything. 
 
 #==========================================
 #For loop/variables to ray trace
@@ -88,52 +94,54 @@ pos_velo_list = np.empty((n_iterations, 4)) #2d array for position and velocity 
 #===================================================
 
 pos_init_x = photon.pos[0]
-pos_init_y = photon.pos[1]
+pos_init_y = photon.pos[1]      #initial position of the orbiting object for  loop array initialization
 
 v_init_x = photon.velocity[0]
-v_init_y = photon.velocity[1]
+v_init_y = photon.velocity[1]       #initial velocity of the 
 
 
 
 
 pos_velo_list[(0),0:2] = [v_init_x, v_init_y]
-pos_velo_list[(0), 2:] = [pos_init_x, pos_init_y]
+pos_velo_list[(0), 2:] = [pos_init_x, pos_init_y]       #adding initial position and velocity into a list for easy looping and plotting 
 
 
 
 
-#===================================================
+#==================================================================================================
 #Looping over iterations and adding results into list of all positional changes for plotting later. 
-#===================================================
+#==================================================================================================
+
+#ALL VALUES FOR POSITION, ACCELERATION, VELOCITY ARE VECTOR AND CAN BE GENERALIZED INTO N DIMENSIONS.
 
 for i in (range(1,n_iterations)):
-    v_0x = pos_velo_list[i-1, 0]
+    v_0x = pos_velo_list[i-1, 0]        #initial velocity from list, uses last iteration's final velocity.
     v_0y = pos_velo_list[i-1, 1]
 
-    p_0x = pos_velo_list[i-1, 2]
+    p_0x = pos_velo_list[i-1, 2]        #initial velocity from list, uses last iteration's final velocity.
     p_0y = pos_velo_list[i-1, 3]
 
 
-    photon.velocity = (v_0x, v_0y)
+    photon.velocity = (v_0x, v_0y)      #rewriting the attributes of the orbiting element to the new initial values
     photon.pos = (p_0x, p_0y)
 
-    F_mag = Gravity.Force(photon, center)
+    F_mag = Gravity.Force(photon, center)              #calculating magnitude and direction of gravitational force from new rewritten attributes
     F_dir = -(Gravity.Direction(photon, center))
 
-    agx = (F_mag*F_dir[0])/(photon.mass)          #Acceleration from Gravitational Force
+    agx = (F_mag*F_dir[0])/(photon.mass)          #Acceleration from Gravitational Force = F_g/m_orbit
     agy = (F_mag*F_dir[1])/(photon.mass)
 
-    v_fx = v_0x + (agx*t_iter)
-    v_fy = v_0y + (agy*t_iter)     
+    v_fx = v_0x + (agx*t_iter)          #approximating a small dv = a*t (linear), adding to initial velocity for a final velocity 
+    v_fy = v_0y + (agy*t_iter)             #to be used in position calculation as a linear approximation
 
 
-    pos_addx= v_fx*t_iter
-    pos_addy = v_fy*t_iter
-    pos_finx = p_0x + pos_addx
+    pos_addx= v_fx*t_iter               #previously mentioned linear approximation x = v*t for position vector to be added to initial position vector
+    pos_addy = v_fy*t_iter              
+    pos_finx = p_0x + pos_addx          #adding linear dx to initial position for a final position
     pos_finy = p_0y + pos_addy
 
 
-    pos_velo_list[(i), 0:2] = [v_fx, v_fy]
+    pos_velo_list[(i), 0:2] = [v_fx, v_fy]          #adding final x,v to the list to be used in next run of loop
     pos_velo_list[(i), 2:] = [pos_finx, pos_finy]
 
 
@@ -153,7 +161,7 @@ fig, ax = plt.subplots()
 ax.plot(pos_velo_list[:,2],pos_velo_list[:,3] , c = 'blue')
 ax.set_xlim(-19*center.radius,19*center.radius)
 ax.set_ylim(-19*center.radius, 19*center.radius)
-circ = matplotlib.patches.Circle((0,0), radius = center.radius)
+circ = matplotlib.patches.Circle((0,0), radius = center.radius)         #circle to show central body "surface". 
 ax.add_patch(circ)
 plt.show()
 

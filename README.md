@@ -13,3 +13,6 @@ To add:
 Current Bugs:
     - x and y seem to not be updating correctly. Initial velocities in x and y directions are not functioning properly. 
     Plot shoots photons down to zero immediately. Trying an orbit of a 10^31 kg black hole, r= ~14500 m.
+
+
+    INITIAL VELOCITy OFF

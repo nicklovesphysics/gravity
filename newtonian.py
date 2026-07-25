@@ -81,9 +81,6 @@ photon = Particle(mass = 1, radius = 1, velocity = (0, 490), position = (12000,0
 #For loop/variables to ray trace
 #==========================================
 
-# F_init = Gravity.Force(photon, center)
-# F_init_d = -(Gravity.Direction(photon, center))
-
 pos_velo_list = np.empty((n_iterations, 4)) #2d array for position and velocity at each iteration, (4 columns = vx,vy,px,py).  
 
 #===================================================
@@ -108,8 +105,6 @@ pos_velo_list[(0), 2:] = [pos_init_x, pos_init_y]
 #===================================================
 #Looping over iterations and adding results into list of all positional changes for plotting later. 
 #===================================================
-
-#x-forces are being completely miscalculated. 
 
 for i in (range(1,n_iterations)):
     v_0x = pos_velo_list[i-1, 0]
@@ -141,8 +136,6 @@ for i in (range(1,n_iterations)):
     pos_velo_list[(i), 0:2] = [v_fx, v_fy]
     pos_velo_list[(i), 2:] = [pos_finx, pos_finy]
 
-
-# print(pos_velo_list[0:25])
 
 
 print('==================')

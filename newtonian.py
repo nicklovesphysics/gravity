@@ -63,7 +63,7 @@ class Gravity:                          #General gravity operations and related 
     
     def Force(obj1, obj2, g=g_const):
         rad = Distance(obj1, obj2)
-        F_mag = (g*obj1.mass*obj2.mass)/(rad)
+        F_mag = ((g)*(obj1.mass)*(obj2.mass))/(rad)**2
         return (F_mag)
     
 
@@ -71,28 +71,24 @@ class Gravity:                          #General gravity operations and related 
 #Parameters for numerical path integration
 #=========================================
 
-n_iterations = 200
-t_iter = .1
+n_iterations = 360
+t_iter = 1
 
 center = CentralMass(mass = 10e19, radius = 1000, position = (0,0))
-photon = Particle(mass = 1, radius = 1, velocity = (0, 154), position = (12000,0))
+photon = Particle(mass = 1, radius = 1, velocity = (0, 490), position = (12000,0))
 
 #==========================================
 #For loop/variables to ray trace
 #==========================================
 
-F_init = Gravity.Force(photon, center)
-F_init_d = Gravity.Direction(photon, center)
+# F_init = Gravity.Force(photon, center)
+# F_init_d = -(Gravity.Direction(photon, center))
 
-velocity_list = np.empty(((n_iterations+1), 2))  #two dimensional array for 2d vector sums, not plotting with a for loop. 
-pos_list = np.empty(((n_iterations+1),2))       #same for positions, both with one extra slot for initial part. 
-forces = np.empty(((n_iterations+1),1))
+pos_velo_list = np.empty((n_iterations, 4)) #2d array for position and velocity at each iteration, (4 columns = vx,vy,px,py).  
+
 #===================================================
 #initial position change, velocity change for plotting
 #===================================================
-
-F_mag = F_init
-F_dir = F_init_d
 
 pos_init_x = photon.pos[0]
 pos_init_y = photon.pos[1]
@@ -102,77 +98,51 @@ v_init_y = photon.velocity[1]
 
 
 
-velocity_list[(0),:] = [v_init_x, v_init_y]
-pos_list[(0), :] = [pos_init_x, pos_init_y]
+
+pos_velo_list[(0),0:2] = [v_init_x, v_init_y]
+pos_velo_list[(0), 2:] = [pos_init_x, pos_init_y]
 
 
-
-v_iter_x = -(F_mag*F_dir[0]*t_iter)/(photon.mass)          #Velocity (vector) gained from Gravitational Force
-v_iter_y = -(F_mag*F_dir[1]*t_iter)/(photon.mass)
-
-
-
-v_fx = v_init_x + v_iter_x 
-v_fy = v_init_y + v_iter_y
-
-pos_iter_x = v_fx*t_iter
-pos_iter_y = v_fy*t_iter
-
-pos_init_dispx = pos_iter_x+pos_init_x
-pos_init_dispy = pos_iter_y+pos_init_y
-
-velocity_list[(1),:] = [v_fx, v_fy]
-pos_list[(1), :] = [pos_init_dispx, pos_init_dispy]
 
 
 #===================================================
 #Looping over iterations and adding results into list of all positional changes for plotting later. 
 #===================================================
 
-print("Beginning For Loop")
+#x-forces are being completely miscalculated. 
+
+for i in (range(1,n_iterations)):
+    v_0x = pos_velo_list[i-1, 0]
+    v_0y = pos_velo_list[i-1, 1]
+
+    p_0x = pos_velo_list[i-1, 2]
+    p_0y = pos_velo_list[i-1, 3]
 
 
-for i in range((n_iterations-1)):
-    
-    if Distance(photon,center) >= center.radius:
-        v_0x = velocity_list[(i+1),0]
-        v_0y = velocity_list[(i+1),1]
+    photon.velocity = (v_0x, v_0y)
+    photon.pos = (p_0x, p_0y)
 
-        x_0 = pos_list[(i+1),0]
-        y_0 = pos_list[(i+1),1]
+    F_mag = Gravity.Force(photon, center)
+    F_dir = -(Gravity.Direction(photon, center))
 
-        setattr(photon,'velocity',(v_0x,v_0y))
-        setattr(photon,'position',(x_0,y_0))
+    agx = (F_mag*F_dir[0])/(photon.mass)          #Acceleration from Gravitational Force
+    agy = (F_mag*F_dir[1])/(photon.mass)
 
-
-
-        F_mag = Gravity.Force(photon, center)
-        F_dir = Gravity.Direction(photon, center)
+    v_fx = v_0x + (agx*t_iter)
+    v_fy = v_0y + (agy*t_iter)     
 
 
-
-        v_iter_x = -(F_mag*F_dir[0]*t_iter)/(photon.mass)          
-        v_iter_y = -(F_mag*F_dir[1]*t_iter)/(photon.mass)
-
-
-        v_fx = v_0x + v_iter_x
-        v_fy = v_0y + v_iter_y
-
-        pos_iter_x = v_fx*t_iter
-        pos_iter_y = v_fy*t_iter
-
-        pos_fx = pos_iter_x + x_0
-        pos_fy = pos_iter_y + y_0
+    pos_addx= v_fx*t_iter
+    pos_addy = v_fy*t_iter
+    pos_finx = p_0x + pos_addx
+    pos_finy = p_0y + pos_addy
 
 
-        velocity_list[(i+2), :] = [v_fx, v_fy]
-        pos_list[(i+2), :] = [pos_fx, pos_fy]
-    else:
-        pos_list[(i+2),:] = np.nan
-        velocity_list[(i+2), :] = np.nan
+    pos_velo_list[(i), 0:2] = [v_fx, v_fy]
+    pos_velo_list[(i), 2:] = [pos_finx, pos_finy]
 
 
-print(pos_list)
+# print(pos_velo_list[0:25])
 
 
 print('==================')
@@ -182,22 +152,19 @@ print('==================')
 # #Plotting positions over time
 # #===================================================
 
-xpos = pos_list[:,0]
-ypos = pos_list[:,1]
 
 
 
 fig, ax = plt.subplots()
 
-ax.plot(xpos, ypos, c = 'blue')
-ax.set_xlim(-0.85*center.radius,2.9*center.radius)
-ax.set_ylim(-.85*center.radius, 1.6*center.radius)
+ax.plot(pos_velo_list[:,2],pos_velo_list[:,3] , c = 'blue')
+ax.set_xlim(-19*center.radius,19*center.radius)
+ax.set_ylim(-19*center.radius, 19*center.radius)
 circ = matplotlib.patches.Circle((0,0), radius = center.radius)
 ax.add_patch(circ)
 plt.show()
 
 
-#git test
    
     
 

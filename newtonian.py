@@ -71,11 +71,11 @@ class Gravity:                          #General gravity operations and related 
 #Parameters for numerical path integration
 #=========================================
 
-n_iterations = 2000
+n_iterations = 200
 t_iter = .1
 
-center = CentralMass(mass = 10e31, radius = 14852, position = (0,0))
-photon = Particle(mass = 1, radius = 1, velocity = (0, 3*(10**8)), position = ((center.radius+ 7411.1111),0))
+center = CentralMass(mass = 10e19, radius = 1000, position = (0,0))
+photon = Particle(mass = 1, radius = 1, velocity = (0, 154), position = (12000,0))
 
 #==========================================
 #For loop/variables to ray trace
@@ -171,7 +171,7 @@ for i in range((n_iterations-1)):
         pos_list[(i+2),:] = np.nan
         velocity_list[(i+2), :] = np.nan
 
-print(velocity_list)
+
 print(pos_list)
 
 
@@ -190,7 +190,7 @@ ypos = pos_list[:,1]
 fig, ax = plt.subplots()
 
 ax.plot(xpos, ypos, c = 'blue')
-ax.set_xlim(0,2.9*center.radius)
+ax.set_xlim(-0.85*center.radius,2.9*center.radius)
 ax.set_ylim(-.85*center.radius, 1.6*center.radius)
 circ = matplotlib.patches.Circle((0,0), radius = center.radius)
 ax.add_patch(circ)

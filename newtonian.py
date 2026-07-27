@@ -73,7 +73,7 @@ class Gravity:                          #General gravity operations and related 
 
 #**EVERY TIME UNIT IS IN seconds!** 
 
-n_iterations = 450         #number of iterations of for loop.
+n_iterations = 30000        #number of iterations of for loop.
 t_iter = .1                  #time used for linear approximations of each iteration. Comparable to resolution. 
 
 #for a smooth simulation, t_iter*n_iterations should be comparable to orbital period.
@@ -81,7 +81,7 @@ t_iter = .1                  #time used for linear approximations of each iterat
 #Increase n_iterations after this if you do not see a complete trajectory.
 
 center = CentralMass(mass = 10e19, radius = 1000, position = (0,0))
-photon = Particle(mass = 1, radius = 1, velocity = (0, 325), position = (12000,0))      #name is photon, but orbital object could be anything. 
+photon = Particle(mass = 1, radius = 1, velocity = (-750, 500), position = (12000,0))      #name is photon, but orbital object could be anything. 
 
 #==========================================
 #For loop/variables to ray trace
@@ -157,11 +157,13 @@ print('==================')
 
 
 fig, ax = plt.subplots()
+fig.set_facecolor('white')
 
-ax.plot(pos_velo_list[:,2],pos_velo_list[:,3] , c = 'blue')
-ax.set_xlim(-19*center.radius,19*center.radius)
-ax.set_ylim(-19*center.radius, 19*center.radius)
-circ = matplotlib.patches.Circle((0,0), radius = center.radius)         #circle to show central body "surface". 
+ax.plot(pos_velo_list[:,2],pos_velo_list[:,3] , c = 'white')
+ax.set_facecolor('black')
+ax.set_xlim(-25*center.radius,25*center.radius)
+ax.set_ylim(-25*center.radius, 25*center.radius)
+circ = matplotlib.patches.Circle((0,0), radius = center.radius, color = 'yellow')         #circle to show central body "surface". 
 ax.add_patch(circ)
 plt.show()
 

@@ -1,9 +1,11 @@
 # gravity
-Some gravity simulations that I am working on building. Starting on Newtonian physics, then moving onto General Relativity. 
+A simplee gravity simulation that I built for fun. 
 
 ***UNITS*** are in Meters, Kilograms, Seconds, per gravitational constant G convention. 
 
-The newtonian simulation is only an approximation, as a real photon is massless and has no radius. 
+The newtonian simulation is only an approximation, as a real photon is massless and has no radius. Additionally, General Relativistic simulations are possible but above the scope of this fun little project. 
+
+Newtonian.py is a one-ray simulation. Newtonian-nulti.py is a simulation of 360 degrees of radial velocities from a source.
 
 To add:
 
@@ -11,4 +13,4 @@ To add:
     - x,y scaling in plot
 
 Current Bugs:
-    - fully functional as of first tests. 
+    -none
